@@ -4,22 +4,16 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  bundledWebRuntime: false,
-  // Adicione a configuração do servidor aqui
-  server: {
-    url: 'https://inteligenciatitan.com.br', // URL principal
-    allowNavigation: [
-      'inteligenciatitan.com.br' // Permite a navegação dentro do seu domínio
-    ]
-  },
+  // A propriedade 'bundledWebRuntime' foi removida para resolver o erro.
+  // O valor padrão dela já é o que precisamos.
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000, // Duração da splash screen em milissegundos
+      launchShowDuration: 3000,
       launchAutoHide: true,
-      backgroundColor: "#ffffff", // Cor de fundo da splash
+      backgroundColor: "#101212",
       androidSplashResourceName: "splash",
       iosSplashResourceName: "Splash",
-      showSpinner: false, // Opcional: esconde o spinner de carregamento
+      showSpinner: false,
     }
   }
 };

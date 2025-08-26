@@ -3,67 +3,147 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Carregando...</title>
+    <title>Inteligencia Titan</title>
     <style>
-        /* Estilo simples para a tela de carregamento */
+        :root {
+            font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
         body, html {
             height: 100%;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+            box-sizing: border-box;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #f0f0f0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #101212;
+            color: #f8fbf8;
+        }
+
+        /* --- Estilos do Loader --- */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .loader {
-            border: 8px solid #e3e3e3;
-            border-top: 8px solid #3498db;
+            border: 8px solid #3d3f40;
+            border-top: 8px solid #17fc00;
             border-radius: 50%;
             width: 60px;
             height: 60px;
             animation: spin 1s linear infinite;
         }
+        .loader-container p {
+            margin-top: 20px;
+            font-size: 18px;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* --- Estilos da Mensagem Offline --- */
+        .offline-container {
+            display: none; /* Escondido por padrão */
+            background-color: #1c1d1e;
+            border-radius: 12px;
+            padding: 32px;
+            flex-direction: column;
+            gap: 24px;
+            text-align: center;
+            border: 1px solid #3d3f40;
+            width: 100%;
+            max-width: 400px;
+        }
+        .offline-container__titulo {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .offline-container__mensagem {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #dcdfdc;
+        }
+        .titan-botao {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            border: 2px solid;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            background-color: #17fc00;
+            color: #101212;
+            border-color: #00d400;
+            transition: background-color .1s linear, border-color .1s linear;
+        }
+        .titan-botao:hover,
+        .titan-botao:focus-visible {
+            background-color: #00ea00;
+            border-color: #00bf00;
+            outline: none;
+        }
     </style>
 </head>
 <body>
-    <div class="loader"></div>
-    <p style="margin-left: 15px; font-size: 18px;">Verificando conexão...</p>
 
-    <!-- Importa o JavaScript do Capacitor -->
+    <!-- Loader - Visível inicialmente -->
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+        <p>Verificando conexão...</p>
+    </div>
+
+    <!-- Mensagem Offline - Escondida inicialmente -->
+    <div class="offline-container" id="offline-content">
+        <h3 class="offline-container__titulo">Falha na Conexão</h3>
+        <p class="offline-container__mensagem">
+            Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.
+        </p>
+        <button class="titan-botao" id="retry-button">
+            Tentar Novamente
+        </button>
+    </div>
+
     <script src="capacitor.js"></script>
     <script>
-        // Espera o dispositivo estar pronto para usar os plugins
-        document.addEventListener('deviceready', onDeviceReady, false);
+        const loader = document.getElementById('loader');
+        const offlineContent = document.getElementById('offline-content');
 
-        async function onDeviceReady() {
-            try {
-                // Pega o status da rede usando o plugin do Capacitor
-                const status = await Capacitor.Plugins.Network.getStatus();
-
-                if (status.connected) {
-                    // Se estiver conectado, redireciona para o site principal
-                    console.log('Online, redirecionando para o site principal.');
-                    window.location.replace('https://inteligenciatitan.com.br');
-                } else {
-                    // Se estiver offline, redireciona para a página de fallback local
-                    console.log('Offline, redirecionando para a página de fallback.');
-                    window.location.replace('./fallback.html');
-                }
-            } catch (error) {
-                // Em caso de erro, assume offline como segurança
-                console.error('Erro ao verificar status da rede:', error);
-                window.location.replace('./fallback.html');
-            }
+        function showOfflineState() {
+            loader.style.display = 'none';
+            offlineContent.style.display = 'flex';
         }
 
-        // Fallback para navegadores que não são Capacitor (caso teste no PC)
-        // e para o app iniciar mais rápido.
-        window.addEventListener('load', onDeviceReady);
+        document.getElementById('retry-button').addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        (async () => {
+            try {
+                await customElements.whenDefined('capacitor-network');
+                const { Network } = Capacitor.Plugins;
+                const status = await Network.getStatus();
+
+                if (status.connected) {
+                    console.log('Online, redirecionando...');
+                    window.location.replace('https://inteligenciatitan.com.br');
+                } else {
+                    console.log('Offline, mostrando mensagem.');
+                    showOfflineState();
+                }
+            } catch (error) {
+                console.error('Falha ao verificar rede, assumindo offline:', error);
+                showOfflineState();
+            }
+        })();
     </script>
 </body>
 </html>
