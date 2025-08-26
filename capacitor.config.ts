@@ -4,7 +4,11 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  // Removemos o bloco 'server' completamente. A lógica agora está 100% no index.html.
+  // A configuração abaixo é essencial para que o redirecionamento
+  // do index.html funcione dentro do app e não abra o Safari.
+  server: {
+    hostname: 'inteligenciatitan.com.br'
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000, // Diminuímos um pouco para a verificação começar mais rápido
