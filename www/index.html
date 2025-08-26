@@ -106,7 +106,25 @@
         }
 
         // 'deviceready' é o evento mais seguro para garantir que os plugins do Capacitor estão prontos.
-        document.addEventListener('deviceready', checkNetworkAndRedirect, false);
+        document.addEventListener('deviceready', async () => {
+            // Configuração programática da Status Bar para garantir o comportamento
+            if (Capacitor.isPluginAvailable('StatusBar')) {
+                const { StatusBar } = Capacitor.Plugins;
+                try {
+                    // Força o app a ficar abaixo da status bar
+                    await StatusBar.setOverlaysWebView({ overlay: false });
+                    // Garante que o texto da status bar seja branco
+                    await StatusBar.setStyle({ style: 'dark' });
+                    // Define a cor de fundo da área da status bar
+                    await StatusBar.setBackgroundColor({ color: '#101212' });
+                } catch (e) {
+                    console.error('Falha ao configurar a status bar:', e);
+                }
+            }
+            
+            // Roda a verificação de rede após configurar a UI
+            await checkNetworkAndRedirect();
+        }, false);
     </script>
 </body>
 </html>
