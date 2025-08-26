@@ -66,9 +66,6 @@
             outline: none;
         }
     </style>
-    <!-- Ferramenta de debug em tempo real -->
-    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
 </head>
 <body>
     <div class="container" id="content">
@@ -88,38 +85,43 @@
         const retryButton = document.getElementById('retry-button');
 
         function showOfflineState() {
-            console.log('[DEBUG] Mostrando estado OFFLINE.');
             titleEl.textContent = 'Falha na Conexão';
             messageEl.textContent = 'Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.';
             retryButton.style.display = 'inline-flex';
         }
 
         retryButton.addEventListener('click', () => {
-            console.log('[DEBUG] Botão "Tentar Novamente" clicado. Recarregando...');
             window.location.reload();
         });
 
-        async function checkNetworkAndRedirect() {
+        async function checkNetworkAndOpenApp() {
             try {
-                console.log('[DEBUG] Verificando status da rede...');
-                const { Network } = Capacitor.Plugins;
+                const { Network, Browser } = Capacitor.Plugins;
                 const status = await Network.getStatus();
 
                 if (status.connected) {
-                    console.log('[DEBUG] Conectado! Redirecionando para o site...');
-                    window.location.replace('https://inteligenciatitan.com.br');
+                    // Esta é a forma correta de abrir o site DENTRO do app
+                    // com aparência 100% nativa.
+                    await Browser.open({ 
+                        url: 'https://inteligenciatitan.com.br',
+                        // As opções abaixo removem a barra de ferramentas,
+                        // fazendo com que pareça um app nativo e não um navegador.
+                        presentationStyle: 'fullscreen',
+                        toolbarColor: '#101212'
+                    });
+                    // Depois que o usuário fechar a janela do site, podemos
+                    // mostrar a tela offline novamente.
+                    showOfflineState();
                 } else {
-                    console.log('[DEBUG] Desconectado. Exibindo mensagem de erro.');
                     showOfflineState();
                 }
             } catch (error) {
-                console.error('[DEBUG] Erro ao usar o plugin de rede. Assumindo offline.', error);
+                console.error('Erro ao verificar rede ou abrir browser:', error);
                 showOfflineState();
             }
         }
-
-        // Espera o evento 'deviceready' do Capacitor, que é mais seguro
-        document.addEventListener('deviceready', checkNetworkAndRedirect, false);
+        
+        document.addEventListener('deviceready', checkNetworkAndOpenApp, false);
     </script>
 </body>
 </html>
