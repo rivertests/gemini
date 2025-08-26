@@ -126,9 +126,11 @@
             window.location.reload();
         });
 
-        (async () => {
+        // Função para verificar a rede
+        async function checkNetwork() {
             try {
-                await customElements.whenDefined('capacitor-network');
+                // Acessa o plugin diretamente. O Capacitor garante que ele estará
+                // disponível depois que a página carregar.
                 const { Network } = Capacitor.Plugins;
                 const status = await Network.getStatus();
 
@@ -143,7 +145,10 @@
                 console.error('Falha ao verificar rede, assumindo offline:', error);
                 showOfflineState();
             }
-        })();
+        }
+        
+        // Roda a verificação assim que o app estiver pronto
+        checkNetwork();
     </script>
 </body>
 </html>
