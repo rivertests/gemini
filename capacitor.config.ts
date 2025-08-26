@@ -4,16 +4,10 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  server: {
-    url: 'https://inteligenciatitan.com.br',
-    errorPath: 'index.html',
-    iosScheme: 'https'
-  },
-  // A configuração abaixo aumenta a quantidade de logs que o app nos dará.
-  loggingBehavior: 'debug',
+  // Removemos o bloco 'server' completamente. A lógica agora está 100% no index.html.
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
+      launchShowDuration: 2000, // Diminuímos um pouco para a verificação começar mais rápido
       launchAutoHide: true,
       backgroundColor: "#101212",
       androidSplashResourceName: "splash",

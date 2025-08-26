@@ -3,23 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Offline - Inteligencia Titan</title>
-    <script>
-        // Log para saber se o cabeçalho do HTML está sendo lido
-        console.log('[DEBUG] Head do index.html carregado.');
-
-        // Captura qualquer erro de script que possa acontecer nesta página
-        window.onerror = function(message, source, lineno, colno, error) {
-            console.error('[DEBUG] Ocorreu um erro no script da página offline:', {
-                message: message,
-                source: source,
-                lineno: lineno,
-                colno: colno,
-                error: error
-            });
-            return true; // Impede que o erro pare a execução
-        };
-    </script>
+    <title>Inteligencia Titan</title>
     <style>
         :root {
             font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -36,7 +20,7 @@
             background-color: #101212;
             color: #f8fbf8;
         }
-        .offline-container {
+        .container {
             display: flex;
             background-color: #1c1d1e;
             border-radius: 12px;
@@ -48,12 +32,12 @@
             width: 100%;
             max-width: 400px;
         }
-        .offline-container__titulo {
+        .container__titulo {
             margin: 0;
             font-size: 20px;
             font-weight: 700;
         }
-        .offline-container__mensagem {
+        .container__mensagem {
             margin: 0;
             font-size: 16px;
             line-height: 1.5;
@@ -82,32 +66,60 @@
             outline: none;
         }
     </style>
-
-<!-- Adicione estas duas linhas para o debug em tempo real -->
-<script src="//cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
-
+    <!-- Ferramenta de debug em tempo real -->
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
 </head>
 <body>
-    <div class="offline-container" id="offline-content">
-        <h3 class="offline-container__titulo">Falha na Conexão</h3>
-        <p class="offline-container__mensagem">
-            Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.
+    <div class="container" id="content">
+        <h3 class="container__titulo" id="title">Verificando Conexão...</h3>
+        <p class="container__mensagem" id="message">
+            Por favor, aguarde um momento.
         </p>
-        <button class="titan-botao" id="retry-button">
+        <button class="titan-botao" id="retry-button" style="display: none;">
             Tentar Novamente
         </button>
     </div>
-    <script>
-        // Log para saber se o corpo do HTML está sendo lido
-        console.log('[DEBUG] Body do index.html carregado.');
 
-        document.getElementById('retry-button').addEventListener('click', () => {
-            console.log('[DEBUG] Botão "Tentar Novamente" foi clicado.');
+    <script src="capacitor.js"></script>
+    <script>
+        const titleEl = document.getElementById('title');
+        const messageEl = document.getElementById('message');
+        const retryButton = document.getElementById('retry-button');
+
+        function showOfflineState() {
+            console.log('[DEBUG] Mostrando estado OFFLINE.');
+            titleEl.textContent = 'Falha na Conexão';
+            messageEl.textContent = 'Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.';
+            retryButton.style.display = 'inline-flex';
+        }
+
+        retryButton.addEventListener('click', () => {
+            console.log('[DEBUG] Botão "Tentar Novamente" clicado. Recarregando...');
             window.location.reload();
         });
 
-        console.log('[DEBUG] Script da página offline executado com sucesso.');
+        async function checkNetworkAndRedirect() {
+            try {
+                console.log('[DEBUG] Verificando status da rede...');
+                const { Network } = Capacitor.Plugins;
+                const status = await Network.getStatus();
+
+                if (status.connected) {
+                    console.log('[DEBUG] Conectado! Redirecionando para o site...');
+                    window.location.replace('https://inteligenciatitan.com.br');
+                } else {
+                    console.log('[DEBUG] Desconectado. Exibindo mensagem de erro.');
+                    showOfflineState();
+                }
+            } catch (error) {
+                console.error('[DEBUG] Erro ao usar o plugin de rede. Assumindo offline.', error);
+                showOfflineState();
+            }
+        }
+
+        // Espera o evento 'deviceready' do Capacitor, que é mais seguro
+        document.addEventListener('deviceready', checkNetworkAndRedirect, false);
     </script>
 </body>
 </html>
