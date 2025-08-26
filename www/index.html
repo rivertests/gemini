@@ -10,29 +10,17 @@
         }
         body, html {
             height: 100%;
-            width: 100%;
             margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #101212;
-            color: #f8fbf8;
-        }
-        #site-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-        #offline-container {
-            display: none;
-            height: 100%;
             padding: 20px;
             box-sizing: border-box;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background-color: #101212;
+            color: #f8fbf8;
         }
-        .offline-content {
+        .container {
             display: flex;
             background-color: #1c1d1e;
             border-radius: 12px;
@@ -44,114 +32,81 @@
             width: 100%;
             max-width: 400px;
         }
-        .offline-content__titulo { margin: 0; font-size: 20px; font-weight: 700; }
-        .offline-content__mensagem { margin: 0; font-size: 16px; line-height: 1.5; color: #dcdfdc; }
+        .container__titulo {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .container__mensagem {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #dcdfdc;
+        }
+        .titan-botao {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            border: 2px solid;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            background-color: #17fc00;
+            color: #101212;
+            border-color: #00d400;
+        }
     </style>
 </head>
 <body>
-    <iframe id="site-iframe" src="https://inteligenciatitan.com.br"></iframe>
-    <div id="offline-container">
-        <div class="offline-content">
-            <h3 class="offline-content__titulo">Falha na Conexão</h3>
-            <p class="offline-content__mensagem">
-                Você parece estar offline. Por favor, verifique sua conexão e reinicie o aplicativo.
-            </p>
-        </div>
+    <div class="container" id="content">
+        <h3 class="container__titulo" id="title">Verificando Conexão...</h3>
+        <p class="container__mensagem" id="message">
+            Por favor, aguarde um momento.
+        </p>
+        <button class="titan-botao" id="retry-button" style="display: none;">
+            Tentar Novamente
+        </button>
     </div>
 
     <script src="capacitor.js"></script>
     <script>
-        // --- Sistema de Logging Remoto ---
-        const LOGGING_ENDPOINT = 'https://SEU_SERVIDOR.com/path/to/log-receiver.php'; // TROQUE ESTA URL
+        const titleEl = document.getElementById('title');
+        const messageEl = document.getElementById('message');
+        const retryButton = document.getElementById('retry-button');
 
-        const logger = {
-            queue: [],
-            init() {
-                const methods = ['log', 'warn', 'error', 'info', 'debug'];
-                methods.forEach(method => {
-                    const original = console[method];
-                    console[method] = (...args) => {
-                        this.add(method.toUpperCase(), ...args);
-                        original.apply(console, args);
-                    };
-                });
-                window.onerror = (message, source, lineno, colno, error) => {
-                    console.error('Uncaught Exception:', { message, source, lineno, error: error ? error.stack : 'N/A' });
-                };
-                console.log('Logger inicializado.');
-            },
-            add(type, ...args) {
-                try {
-                    const message = args.map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
-                    this.queue.push({ timestamp: new Date().toISOString(), type, message });
-                    this.saveQueue();
-                } catch (e) {
-                    // Evita que o logger quebre o app
-                }
-            },
-            async saveQueue() {
-                if (Capacitor && Capacitor.Plugins && Capacitor.Plugins.Preferences) {
-                    await Capacitor.Plugins.Preferences.set({ key: 'app_log_queue', value: JSON.stringify(this.queue) });
-                }
-            },
-            async sendQueue() {
-                if (!Capacitor || !Capacitor.Plugins || !Capacitor.Plugins.Preferences) return;
-                const { value } = await Capacitor.Plugins.Preferences.get({ key: 'app_log_queue' });
-                if (!value) return;
-
-                const logsToSend = JSON.parse(value);
-                if (logsToSend.length === 0) return;
-
-                console.log(`Enviando ${logsToSend.length} logs para o servidor...`);
-                try {
-                    const response = await fetch(LOGGING_ENDPOINT, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(logsToSend)
-                    });
-                    if (response.ok) {
-                        console.log('Logs enviados com sucesso.');
-                        this.queue = [];
-                        await Capacitor.Plugins.Preferences.remove({ key: 'app_log_queue' });
-                    } else {
-                        console.error(`Falha ao enviar logs. Servidor respondeu com: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error('Erro de rede ao enviar logs:', error);
-                }
-            }
-        };
-        logger.init();
-
-        // --- Lógica Principal do App ---
-        const iframe = document.getElementById('site-iframe');
-        const offlineContainer = document.getElementById('offline-container');
-
-        document.addEventListener('deviceready', async () => {
-            console.log('Device pronto. Verificando conexão para enviar logs pendentes.');
-            const { Network } = Capacitor.Plugins;
-            const status = await Network.getStatus();
-            if (status.connected) {
-                await logger.sendQueue();
-            } else {
-                console.log('Offline, logs não serão enviados agora.');
-            }
-        });
-
-        const timer = setTimeout(() => {
-            handleLoadError();
-        }, 10000);
-
-        iframe.addEventListener('load', () => {
-            clearTimeout(timer);
-            console.log("Site carregado com sucesso no iframe.");
-        });
-
-        function handleLoadError() {
-            console.error("Iframe não carregou em 10s. Assumindo offline.");
-            iframe.style.display = 'none';
-            offlineContainer.style.display = 'flex';
+        function showOfflineState() {
+            titleEl.textContent = 'Falha na Conexão';
+            messageEl.textContent = 'Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.';
+            retryButton.style.display = 'inline-flex';
         }
+
+        retryButton.addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        async function checkNetworkAndRedirect() {
+            try {
+                const { Network } = Capacitor.Plugins;
+                const status = await Network.getStatus();
+
+                if (status.connected) {
+                    // O redirecionamento que agora funcionará por causa da configuração no capacitor.config.ts
+                    window.location.replace('https://inteligenciatitan.com.br');
+                } else {
+                    showOfflineState();
+                }
+            } catch (error) {
+                // Se o plugin falhar por algum motivo, assume offline
+                console.error("Erro ao checar a rede:", error);
+                showOfflineState();
+            }
+        }
+
+        // 'deviceready' é o evento mais seguro para garantir que os plugins do Capacitor estão prontos.
+        document.addEventListener('deviceready', checkNetworkAndRedirect, false);
     </script>
 </body>
 </html>

@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Inteligencia Titan',
   webDir: 'www',
   server: {
-    // Esta linha é a chave: ela permite que o iframe navegue para
-    // qualquer link DENTRO deste domínio, sem quebrar a experiência.
+    // Esta linha é a chave: ela permite que o WebView do app navegue para
+    // qualquer link DENTRO deste domínio, sem precisar abrir o Safari.
     allowNavigation: ['inteligenciatitan.com.br']
   },
   plugins: {
