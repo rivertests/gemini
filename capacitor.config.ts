@@ -9,7 +9,9 @@ const config: CapacitorConfig = {
     // 1. O app irá carregar esta URL diretamente como se fosse nativa.
     url: 'https://inteligenciatitan.com.br',
     // 2. Se a URL acima falhar, o Capacitor irá carregar este arquivo local automaticamente.
-    errorPath: 'index.html'
+    errorPath: 'index.html',
+    // 3. Esta linha ajuda o iOS a gerenciar a transição do online para o offline corretamente.
+    iosScheme: 'https'
   },
   plugins: {
     SplashScreen: {
