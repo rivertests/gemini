@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Inteligencia Titan</title>
+    <title>Offline - Inteligencia Titan</title>
     <style>
         :root {
             font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -20,7 +20,7 @@
             background-color: #101212;
             color: #f8fbf8;
         }
-        .container {
+        .offline-container {
             display: flex;
             background-color: #1c1d1e;
             border-radius: 12px;
@@ -32,12 +32,12 @@
             width: 100%;
             max-width: 400px;
         }
-        .container__titulo {
+        .offline-container__titulo {
             margin: 0;
             font-size: 20px;
             font-weight: 700;
         }
-        .container__mensagem {
+        .offline-container__mensagem {
             margin: 0;
             font-size: 16px;
             line-height: 1.5;
@@ -59,69 +59,14 @@
             border-color: #00d400;
             transition: background-color .1s linear, border-color .1s linear;
         }
-        .titan-botao:hover,
-        .titan-botao:focus-visible {
-            background-color: #00ea00;
-            border-color: #00bf00;
-            outline: none;
-        }
     </style>
 </head>
 <body>
-    <div class="container" id="content">
-        <h3 class="container__titulo" id="title">Verificando Conexão...</h3>
-        <p class="container__mensagem" id="message">
-            Por favor, aguarde um momento.
+    <div class="offline-container">
+        <h3 class="offline-container__titulo">Falha na Conexão</h3>
+        <p class="offline-container__mensagem">
+            Você parece estar offline. Por favor, verifique sua conexão.
         </p>
-        <button class="titan-botao" id="retry-button" style="display: none;">
-            Tentar Novamente
-        </button>
     </div>
-
-    <script src="capacitor.js"></script>
-    <script>
-        const titleEl = document.getElementById('title');
-        const messageEl = document.getElementById('message');
-        const retryButton = document.getElementById('retry-button');
-
-        function showOfflineState() {
-            titleEl.textContent = 'Falha na Conexão';
-            messageEl.textContent = 'Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.';
-            retryButton.style.display = 'inline-flex';
-        }
-
-        retryButton.addEventListener('click', () => {
-            window.location.reload();
-        });
-
-        async function checkNetworkAndOpenApp() {
-            try {
-                const { Network, Browser } = Capacitor.Plugins;
-                const status = await Network.getStatus();
-
-                if (status.connected) {
-                    // Esta é a forma correta de abrir o site DENTRO do app
-                    // com aparência 100% nativa.
-                    await Browser.open({ 
-                        url: 'https://inteligenciatitan.com.br',
-                        // As opções abaixo removem a barra de ferramentas,
-                        // fazendo com que pareça um app nativo e não um navegador.
-                        presentationStyle: 'fullscreen',
-                        toolbarColor: '#101212'
-                    });
-                    // Depois que o usuário fechar a janela do site, podemos
-                    // mostrar a tela offline novamente.
-                    showOfflineState();
-                } else {
-                    showOfflineState();
-                }
-            } catch (error) {
-                console.error('Erro ao verificar rede ou abrir browser:', error);
-                showOfflineState();
-            }
-        }
-        
-        document.addEventListener('deviceready', checkNetworkAndOpenApp, false);
-    </script>
 </body>
 </html>
