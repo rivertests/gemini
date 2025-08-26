@@ -4,8 +4,14 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  // A propriedade 'bundledWebRuntime' foi removida para resolver o erro.
-  // O valor padrão dela já é o que precisamos.
+  // A configuração 'server' abaixo é crucial.
+  // Ela informa ao app que qualquer URL dentro de 'inteligenciatitan.com.br'
+  // deve ser aberta dentro do próprio app, e não no Safari.
+  server: {
+    hostname: 'inteligenciatitan.com.br',
+    androidScheme: 'https',
+    iosScheme: 'https'
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,
