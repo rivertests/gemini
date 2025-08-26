@@ -13,18 +13,16 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Impede barras de rolagem no corpo */
+            overflow: hidden;
             background-color: #101212;
             color: #f8fbf8;
         }
-        /* O iframe vai preencher a tela inteira */
         #site-iframe {
             width: 100%;
             height: 100%;
             border: none;
-            display: block; /* Garante que ele preencha o espaço */
+            display: block;
         }
-        /* A tela de offline fica escondida por padrão */
         #offline-container {
             display: none;
             height: 100%;
@@ -46,24 +44,12 @@
             width: 100%;
             max-width: 400px;
         }
-        .offline-content__titulo {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .offline-content__mensagem {
-            margin: 0;
-            font-size: 16px;
-            line-height: 1.5;
-            color: #dcdfdc;
-        }
+        .offline-content__titulo { margin: 0; font-size: 20px; font-weight: 700; }
+        .offline-content__mensagem { margin: 0; font-size: 16px; line-height: 1.5; color: #dcdfdc; }
     </style>
 </head>
 <body>
-    <!-- O iframe que tentará carregar seu site -->
     <iframe id="site-iframe" src="https://inteligenciatitan.com.br"></iframe>
-
-    <!-- A tela de fallback que está escondida -->
     <div id="offline-container">
         <div class="offline-content">
             <h3 class="offline-content__titulo">Falha na Conexão</h3>
@@ -73,27 +59,97 @@
         </div>
     </div>
 
+    <script src="capacitor.js"></script>
     <script>
+        // --- Sistema de Logging Remoto ---
+        const LOGGING_ENDPOINT = 'https://SEU_SERVIDOR.com/path/to/log-receiver.php'; // TROQUE ESTA URL
+
+        const logger = {
+            queue: [],
+            init() {
+                const methods = ['log', 'warn', 'error', 'info', 'debug'];
+                methods.forEach(method => {
+                    const original = console[method];
+                    console[method] = (...args) => {
+                        this.add(method.toUpperCase(), ...args);
+                        original.apply(console, args);
+                    };
+                });
+                window.onerror = (message, source, lineno, colno, error) => {
+                    console.error('Uncaught Exception:', { message, source, lineno, error: error ? error.stack : 'N/A' });
+                };
+                console.log('Logger inicializado.');
+            },
+            add(type, ...args) {
+                try {
+                    const message = args.map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
+                    this.queue.push({ timestamp: new Date().toISOString(), type, message });
+                    this.saveQueue();
+                } catch (e) {
+                    // Evita que o logger quebre o app
+                }
+            },
+            async saveQueue() {
+                if (Capacitor && Capacitor.Plugins && Capacitor.Plugins.Preferences) {
+                    await Capacitor.Plugins.Preferences.set({ key: 'app_log_queue', value: JSON.stringify(this.queue) });
+                }
+            },
+            async sendQueue() {
+                if (!Capacitor || !Capacitor.Plugins || !Capacitor.Plugins.Preferences) return;
+                const { value } = await Capacitor.Plugins.Preferences.get({ key: 'app_log_queue' });
+                if (!value) return;
+
+                const logsToSend = JSON.parse(value);
+                if (logsToSend.length === 0) return;
+
+                console.log(`Enviando ${logsToSend.length} logs para o servidor...`);
+                try {
+                    const response = await fetch(LOGGING_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(logsToSend)
+                    });
+                    if (response.ok) {
+                        console.log('Logs enviados com sucesso.');
+                        this.queue = [];
+                        await Capacitor.Plugins.Preferences.remove({ key: 'app_log_queue' });
+                    } else {
+                        console.error(`Falha ao enviar logs. Servidor respondeu com: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('Erro de rede ao enviar logs:', error);
+                }
+            }
+        };
+        logger.init();
+
+        // --- Lógica Principal do App ---
         const iframe = document.getElementById('site-iframe');
         const offlineContainer = document.getElementById('offline-container');
 
-        // Um truque para detectar falha de carregamento no iframe
-        // Esperamos 10 segundos. Se o iframe não conseguir carregar,
-        // o evento 'load' não será disparado, e o timeout será executado.
+        document.addEventListener('deviceready', async () => {
+            console.log('Device pronto. Verificando conexão para enviar logs pendentes.');
+            const { Network } = Capacitor.Plugins;
+            const status = await Network.getStatus();
+            if (status.connected) {
+                await logger.sendQueue();
+            } else {
+                console.log('Offline, logs não serão enviados agora.');
+            }
+        });
+
         const timer = setTimeout(() => {
             handleLoadError();
-        }, 10000); // 10 segundos de timeout
+        }, 10000);
 
         iframe.addEventListener('load', () => {
-            // Se o site carregar com sucesso, cancelamos o timeout
             clearTimeout(timer);
             console.log("Site carregado com sucesso no iframe.");
         });
 
         function handleLoadError() {
-            // Esconde o iframe que falhou
+            console.error("Iframe não carregou em 10s. Assumindo offline.");
             iframe.style.display = 'none';
-            // Mostra a mensagem de offline
             offlineContainer.style.display = 'flex';
         }
     </script>
