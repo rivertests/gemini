@@ -129,14 +129,20 @@
         // Função para verificar a rede
         async function checkNetwork() {
             try {
-                // Acessa o plugin diretamente. O Capacitor garante que ele estará
-                // disponível depois que a página carregar.
-                const { Network } = Capacitor.Plugins;
+                const { Network, Browser } = Capacitor.Plugins;
                 const status = await Network.getStatus();
 
                 if (status.connected) {
-                    console.log('Online, redirecionando...');
-                    window.location.replace('https://inteligenciatitan.com.br');
+                    console.log('Online, abrindo o Browser interno...');
+                    // Este é o método correto e robusto para abrir o site DENTRO do app.
+                    await Browser.open({ 
+                        url: 'https://inteligenciatitan.com.br',
+                        // A linha abaixo esconde os controles do navegador (voltar, avançar, etc)
+                        // para dar uma aparência 100% nativa.
+                        toolbarColor: '#101212' 
+                    });
+                    // Opcional: se o usuário fechar o browser interno, você pode fechar o app.
+                    // App.exitApp(); 
                 } else {
                     console.log('Offline, mostrando mensagem.');
                     showOfflineState();
