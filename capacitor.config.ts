@@ -11,15 +11,17 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      launchAutoHide: true,
+      launchShowDuration: 3000, // Aumentamos um pouco para dar tempo de carregar
+      launchAutoHide: false, // O script agora vai controlar quando esconder
       backgroundColor: "#101212",
+      iosSplashResourceName: "Splash", // Nome padrão para os assets do iOS
     },
-    // Configuração da Status Bar para resolver o problema de sobreposição
+    // A configuração aqui serve como um fallback, mas o controle principal
+    // agora está no script do index.html para garantir a execução.
     StatusBar: {
-      style: 'dark', // Deixa o texto da status bar (horas, bateria) branco
-      overlay: false, // Esta é a linha mais importante: move o app para baixo da status bar
-      backgroundColor: '#101212' // Define a cor da área da status bar para combinar com seu app
+      style: 'dark',
+      overlay: false,
+      backgroundColor: '#101212'
     }
   }
 };

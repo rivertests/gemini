@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
     <title>Inteligencia Titan</title>
     <style>
         :root {
@@ -102,6 +102,11 @@
                 // Se o plugin falhar por algum motivo, assume offline
                 console.error("Erro ao checar a rede:", error);
                 showOfflineState();
+            } finally {
+                // Esconde a splash screen, não importa se deu certo ou errado
+                if (Capacitor.isPluginAvailable('SplashScreen')) {
+                    Capacitor.Plugins.SplashScreen.hide();
+                }
             }
         }
 
