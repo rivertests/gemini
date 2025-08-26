@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Carregando...</title>
+    <style>
+        /* Estilo simples para a tela de carregamento */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .loader {
+            border: 8px solid #e3e3e3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <p style="margin-left: 15px; font-size: 18px;">Verificando conexão...</p>
+
+    <!-- Importa o JavaScript do Capacitor -->
+    <script src="capacitor.js"></script>
+    <script>
+        // Espera o dispositivo estar pronto para usar os plugins
+        document.addEventListener('deviceready', onDeviceReady, false);
+
+        async function onDeviceReady() {
+            try {
+                // Pega o status da rede usando o plugin do Capacitor
+                const status = await Capacitor.Plugins.Network.getStatus();
+
+                if (status.connected) {
+                    // Se estiver conectado, redireciona para o site principal
+                    console.log('Online, redirecionando para o site principal.');
+                    window.location.replace('https://inteligenciatitan.com.br');
+                } else {
+                    // Se estiver offline, redireciona para a página de fallback local
+                    console.log('Offline, redirecionando para a página de fallback.');
+                    window.location.replace('./fallback.html');
+                }
+            } catch (error) {
+                // Em caso de erro, assume offline como segurança
+                console.error('Erro ao verificar status da rede:', error);
+                window.location.replace('./fallback.html');
+            }
+        }
+
+        // Fallback para navegadores que não são Capacitor (caso teste no PC)
+        // e para o app iniciar mais rápido.
+        window.addEventListener('load', onDeviceReady);
+    </script>
+</body>
+</html>

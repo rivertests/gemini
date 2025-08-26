@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="google" content="notranslate">
+    <title>Offline - Titan</title>
+    <style>
+        /* Estilos essenciais extraídos e simplificados */
+        :root {
+            font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            --titan-background: #101212;
+            --titan-color: white;
+            position: absolute;
+            inset: 0;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            background-color: var(--titan-background);
+            color: var(--titan-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .titan-popup {
+            background-color: #1c1d1e;
+            border-radius: 12px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            text-align: center;
+            border: 1px solid #3d3f40;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .titan-popup__titulo {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fbf8;
+        }
+
+        .titan-popup__mensagem {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #dcdfdc;
+        }
+
+        .titan-botao {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            border: 2px solid;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            user-select: none;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color .1s linear, color .1s linear, border-color .1s linear;
+        }
+
+        .titan-botao--primario {
+            --titan-background: #17fc00;
+            --titan-color: #101212;
+            --titan-borda: #00d400;
+            --titan-hover-background: #00ea00;
+            --titan-hover-borda: #00bf00;
+        }
+        
+        .titan-botao {
+            background-color: var(--titan-background);
+            color: var(--titan-color);
+            border-color: var(--titan-borda);
+        }
+
+        .titan-botao:hover,
+        .titan-botao:focus-visible {
+            background-color: var(--titan-hover-background);
+            border-color: var(--titan-hover-borda);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="titan-popup">
+        <h3 class="titan-popup__titulo">Falha na Conexão</h3>
+        <p class="titan-popup__mensagem">
+            Você não está conectado à internet. Por favor, verifique sua conexão e tente novamente.
+        </p>
+        <!-- Este botão irá recarregar o app para tentar a conexão de novo -->
+        <button class="titan-botao titan-botao--primario" id="retry-button">
+            Tentar Novamente
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('retry-button').addEventListener('click', () => {
+            // Recarrega a página inicial do app, que fará a verificação de rede novamente.
+            window.location.href = '/index.html';
+        });
+    </script>
+
+</body>
+</html>
