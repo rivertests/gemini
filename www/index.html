@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Inteligencia Titan</title>
+    <title>Offline - Inteligencia Titan</title>
     <style>
         :root {
             font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -20,34 +20,8 @@
             background-color: #101212;
             color: #f8fbf8;
         }
-
-        /* --- Estilos do Loader --- */
-        .loader-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .loader {
-            border: 8px solid #3d3f40;
-            border-top: 8px solid #17fc00;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        .loader-container p {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* --- Estilos da Mensagem Offline --- */
         .offline-container {
-            display: none; /* Escondido por padrão */
+            display: flex;
             background-color: #1c1d1e;
             border-radius: 12px;
             padding: 32px;
@@ -94,14 +68,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Loader - Visível inicialmente -->
-    <div class="loader-container" id="loader">
-        <div class="loader"></div>
-        <p>Verificando conexão...</p>
-    </div>
-
-    <!-- Mensagem Offline - Escondida inicialmente -->
     <div class="offline-container" id="offline-content">
         <h3 class="offline-container__titulo">Falha na Conexão</h3>
         <p class="offline-container__mensagem">
@@ -111,50 +77,12 @@
             Tentar Novamente
         </button>
     </div>
-
-    <script src="capacitor.js"></script>
     <script>
-        const loader = document.getElementById('loader');
-        const offlineContent = document.getElementById('offline-content');
-
-        function showOfflineState() {
-            loader.style.display = 'none';
-            offlineContent.style.display = 'flex';
-        }
-
+        // Script simples para o botão "Tentar Novamente" recarregar o app.
+        // Isso fará o Capacitor tentar carregar o site principal de novo.
         document.getElementById('retry-button').addEventListener('click', () => {
             window.location.reload();
         });
-
-        // Função para verificar a rede
-        async function checkNetwork() {
-            try {
-                const { Network, Browser } = Capacitor.Plugins;
-                const status = await Network.getStatus();
-
-                if (status.connected) {
-                    console.log('Online, abrindo o Browser interno...');
-                    // Este é o método correto e robusto para abrir o site DENTRO do app.
-                    await Browser.open({ 
-                        url: 'https://inteligenciatitan.com.br',
-                        // A linha abaixo esconde os controles do navegador (voltar, avançar, etc)
-                        // para dar uma aparência 100% nativa.
-                        toolbarColor: '#101212' 
-                    });
-                    // Opcional: se o usuário fechar o browser interno, você pode fechar o app.
-                    // App.exitApp(); 
-                } else {
-                    console.log('Offline, mostrando mensagem.');
-                    showOfflineState();
-                }
-            } catch (error) {
-                console.error('Falha ao verificar rede, assumindo offline:', error);
-                showOfflineState();
-            }
-        }
-        
-        // Roda a verificação assim que o app estiver pronto
-        checkNetwork();
     </script>
 </body>
 </html>

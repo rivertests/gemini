@@ -4,8 +4,13 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  // O bloco 'server' foi removido. O plugin Browser agora controla a navegação,
-  // o que é mais confiável e evita os erros que você estava vendo.
+  // A configuração 'server' abaixo é a solução definitiva.
+  server: {
+    // 1. O app irá carregar esta URL diretamente como se fosse nativa.
+    url: 'https://inteligenciatitan.com.br',
+    // 2. Se a URL acima falhar, o Capacitor irá carregar este arquivo local automaticamente.
+    errorPath: 'index.html'
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,
