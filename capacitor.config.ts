@@ -5,18 +5,13 @@ const config: CapacitorConfig = {
   appName: 'Inteligencia Titan',
   webDir: 'www',
   server: {
-    // 1. O app irá carregar esta URL diretamente como se fosse nativa.
-    url: 'https://inteligenciatitan.com.br',
-    // 2. Esta linha é a chave: ela permite que o app navegue para
-    //    qualquer link DENTRO do seu domínio, sem abrir o Safari.
-    allowNavigation: ['inteligenciatitan.com.br'],
-    // 3. Se a URL principal falhar (sem internet), o Capacitor irá 
-    //    carregar este arquivo local automaticamente.
-    errorPath: 'index.html'
+    // Esta linha é a chave: ela permite que o iframe navegue para
+    // qualquer link DENTRO deste domínio, sem quebrar a experiência.
+    allowNavigation: ['inteligenciatitan.com.br']
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
+      launchShowDuration: 2000,
       launchAutoHide: true,
       backgroundColor: "#101212",
     }
