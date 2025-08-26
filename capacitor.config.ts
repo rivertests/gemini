@@ -11,10 +11,11 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000, // Aumentamos um pouco para dar tempo de carregar
+      launchShowDuration: 4000, // Aumentamos para 4 segundos
       launchAutoHide: false, // O script agora vai controlar quando esconder
       backgroundColor: "#101212",
-      iosSplashResourceName: "Splash", // Nome padrão para os assets do iOS
+      iosSplashResourceName: "Splash",
+      iosScaleType: "CENTER", // Garante que a imagem seja centralizada e não esticada
     },
     // A configuração aqui serve como um fallback, mas o controle principal
     // agora está no script do index.html para garantir a execução.
