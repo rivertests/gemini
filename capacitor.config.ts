@@ -4,15 +4,13 @@ const config: CapacitorConfig = {
   appId: 'br.com.inteligenciatitan.app',
   appName: 'Inteligencia Titan',
   webDir: 'www',
-  // A configuração 'server' abaixo é a solução definitiva.
   server: {
-    // 1. O app irá carregar esta URL diretamente como se fosse nativa.
     url: 'https://inteligenciatitan.com.br',
-    // 2. Se a URL acima falhar, o Capacitor irá carregar este arquivo local automaticamente.
     errorPath: 'index.html',
-    // 3. Esta linha ajuda o iOS a gerenciar a transição do online para o offline corretamente.
     iosScheme: 'https'
   },
+  // A configuração abaixo aumenta a quantidade de logs que o app nos dará.
+  loggingBehavior: 'debug',
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,

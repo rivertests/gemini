@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Offline - Inteligencia Titan</title>
+    <script>
+        // Log para saber se o cabeçalho do HTML está sendo lido
+        console.log('[DEBUG] Head do index.html carregado.');
+
+        // Captura qualquer erro de script que possa acontecer nesta página
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('[DEBUG] Ocorreu um erro no script da página offline:', {
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno,
+                error: error
+            });
+            return true; // Impede que o erro pare a execução
+        };
+    </script>
     <style>
         :root {
             font-family: Nunito, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -78,11 +94,15 @@
         </button>
     </div>
     <script>
-        // Script simples para o botão "Tentar Novamente" recarregar o app.
-        // Isso fará o Capacitor tentar carregar o site principal de novo.
+        // Log para saber se o corpo do HTML está sendo lido
+        console.log('[DEBUG] Body do index.html carregado.');
+
         document.getElementById('retry-button').addEventListener('click', () => {
+            console.log('[DEBUG] Botão "Tentar Novamente" foi clicado.');
             window.location.reload();
         });
+
+        console.log('[DEBUG] Script da página offline executado com sucesso.');
     </script>
 </body>
 </html>
